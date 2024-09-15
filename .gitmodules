@@ -1,0 +1,6 @@
+[submodule "Submodules/gitverse/FileActionsCPP"]
+	path = Submodules/gitverse/FileActionsCPP
+	url = https://gitverse.ru/MaksMN/FileActionsCPP
+[submodule "Submodules/github/FileActionsCPP"]
+	path = Submodules/github/FileActionsCPP
+	url = https://github.com/MaksMN/FileActionsCPP
