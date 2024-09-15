@@ -3,17 +3,17 @@
 class SampleClass
 {
 private:
-    std::shared_ptr<ILogger> logger_pseudonum = Logger::log;
+    std::shared_ptr<AbstractLogger> logger_pseudonym = Logger::i();
 public:
     void sample_function() {
-        /* your code */
-        logger_pseudonum->console("Hello? Im logger pseudonim");
-        logger_pseudonum->write_file("Hello? Im logger pseudonim");
+
+        logger_pseudonym->console("Hello? Im logger pseudonym");
+        logger_pseudonym->write_file("Hello? Im logger pseudonym");
     }
 };
 
 int main() {
-    auto& logger = Logger::log;
+    auto logger = Logger::i();
     logger->LogFileInitialize("log.log");
     logger->console("Hello, Logger!");
     logger->con_error("This is error console log.");

@@ -1,3 +1,10 @@
 #include "Logger.h"
 
-const std::shared_ptr<ILogger> Logger::log = std::make_shared<Logger::_log>();
+std::shared_ptr<AbstractLogger> Logger::instance = nullptr;
+
+std::shared_ptr<AbstractLogger> Logger::i()
+{
+    if (!instance)
+        instance = std::shared_ptr<AbstractLogger>(new Logger::_log);
+    return instance;
+}

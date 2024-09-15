@@ -9,14 +9,14 @@
 #include <iomanip>
 #include "File.h"
 
-class ILogger
+class AbstractLogger
 {
 private:
     std::mutex mutex;
     std::unique_ptr<File> log_file;
     bool log_file_init = false;
 public:
-    virtual ~ILogger() = 0;
+    virtual ~AbstractLogger() = 0;
     void LogFileInitialize(const std::string& file_path, mode_t perms = 0600);
 
     /**
@@ -38,5 +38,5 @@ public:
 private:
     std::string currentTime();
 protected:
-    ILogger() = default;
+    AbstractLogger() = default;
 };

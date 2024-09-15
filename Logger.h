@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ILogger.h"
+#include "AbstractLogger.h"
 
 class Logger
 {
 private:
-    class _log  final : public ILogger {};
-
+    class _log  final : public AbstractLogger {};
+    static std::shared_ptr<AbstractLogger> instance;
 public:
-    static const std::shared_ptr<ILogger> log;
+    static std::shared_ptr<AbstractLogger> i();
 };
 

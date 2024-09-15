@@ -1,8 +1,8 @@
-#include "ILogger.h"
+#include "AbstractLogger.h"
 
-ILogger::~ILogger() {}
+AbstractLogger::~AbstractLogger() {}
 
-void ILogger::LogFileInitialize(const std::string& file_path, mode_t perms)
+void AbstractLogger::LogFileInitialize(const std::string& file_path, mode_t perms)
 {
     auto _log_file = std::make_unique<File>(file_path, perms);
     log_file = std::move(_log_file);
@@ -11,9 +11,9 @@ void ILogger::LogFileInitialize(const std::string& file_path, mode_t perms)
         con_error("Error LogFileInitialize():\n" + log_file->error_message());
 }
 
-void ILogger::console(const std::string& str, bool add_threadid)
+void AbstractLogger::console(const std::string& str, bool add_threadid)
 {
-    mutex.lock();
+    std::lock_guard<std::mutex> lock(mutex);
     std::string threadIdStr;
     if (add_threadid)
     {
@@ -22,12 +22,11 @@ void ILogger::console(const std::string& str, bool add_threadid)
         threadIdStr = "[THREAD " + oss.str() + "]: ";
     }
     std::cout << threadIdStr << str << std::endl;
-    mutex.unlock();
 }
 
-void ILogger::con_error(const std::string& str, bool add_threadid)
+void AbstractLogger::con_error(const std::string& str, bool add_threadid)
 {
-    mutex.lock();
+    std::lock_guard<std::mutex> lock(mutex);
     std::string threadIdStr;
     if (add_threadid)
     {
@@ -36,12 +35,11 @@ void ILogger::con_error(const std::string& str, bool add_threadid)
         threadIdStr = "[THREAD " + oss.str() + "]: ";
     }
     std::cerr << threadIdStr << str << std::endl;
-    mutex.unlock();
 }
 
-void ILogger::write_file(const std::string& data, bool add_threadid)
+void AbstractLogger::write_file(const std::string& data, bool add_threadid)
 {
-    mutex.lock();
+    std::lock_guard<std::mutex> lock(mutex);
     std::string str = "[" + currentTime() + "] ";
     if (add_threadid)
     {
@@ -49,16 +47,15 @@ void ILogger::write_file(const std::string& data, bool add_threadid)
         oss << std::this_thread::get_id();
         str += "[THREAD " + oss.str() + "]: ";
     }
-    log_file->append(str + data + "\n");
-    mutex.unlock();
+    log_file->append_lock(str + data + "\n");
 }
 
-bool ILogger::file_initialized()
+bool AbstractLogger::file_initialized()
 {
     return log_file_init;
 }
 
-std::string ILogger::currentTime()
+std::string AbstractLogger::currentTime()
 {
     std::chrono::system_clock::time_point time_point = std::chrono::system_clock::now();;
     std::time_t time = std::chrono::system_clock::to_time_t(time_point);

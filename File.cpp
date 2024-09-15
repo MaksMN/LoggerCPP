@@ -154,6 +154,11 @@ ssize_t File::fwrite(const std::string& data, size_t start, size_t length, int l
         length = data.size();
     }
     auto result = write(_fd, data.c_str(), length);
+
+    // снимаем блокировку если указано
+    if (lock_flags & F_UNLOCK)
+        unlock();
+
     if (result == -1)
     {
         add_error("fwrite()");
@@ -176,7 +181,7 @@ ssize_t File::append(const std::string& data)
 ssize_t File::append_lock(const std::string& data)
 {
     auto start = fsize();
-    return (data, start);
+    return fwrite_lock(data, start);
 }
 
 void File::setGroup(gid_t group_id)
