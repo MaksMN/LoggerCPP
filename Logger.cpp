@@ -1,3 +1,14 @@
 #include "Logger.h"
 
-const std::shared_ptr<ILogger> Logger::log = std::make_shared<Logger::_log>();
+std::shared_ptr<AbstractLogger> Logger::instance = nullptr;
+
+std::shared_ptr<AbstractLogger> Logger::i()
+{
+    // При многопоточном запросе неинициализированного инстанса может возникнуть гонка данных 
+    // Для предотвращения гонки можно
+    // Инициализировать инстанс до использования в многопоточности вызвав Logger::i()
+    // Или добавить сюда мьютекс, но после первого вызова надобность в нем отпадает.
+    if (!instance)
+        instance = std::shared_ptr<AbstractLogger>(new Logger::_log);
+    return instance;
+}

@@ -13,22 +13,6 @@
 
 В любой части своего приложения можно без предварительных объявлений и передачи указателей можно выполнять такой код:
 ```cpp
-Logger::log->console("Hello, Logger!");
-Logger::log->write_file("This is a log sting in file.");
-```
-
-Возможность создания коротких псевдонимов:
-```cpp
-class SampleClass
-{
-private:
-    // короткий псевдоним
-    std::shared_ptr<ILogger> l = Logger::log;
-public:
-    void sample_function() {
-        /* your code */
-        l->console("Hello? Im logger pseudonym");
-        l->write_file("Hello? Im logger pseudonym");
-    }
-};
+Logger::i()->console("Hello, Logger!");
+Logger::i()->writeFile("This is a log sting in file.");
 ```
