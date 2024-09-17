@@ -1,27 +1,34 @@
 #include "Logger.h"
+#include <functional>
 
-class SampleClass
-{
-private:
-    std::shared_ptr<AbstractLogger> logger_pseudonym = Logger::i();
-public:
-    void sample_function() {
-
-        logger_pseudonym->console("Hello? Im logger pseudonym");
-        logger_pseudonym->write_file("Hello? Im logger pseudonym");
+void fun(const std::string s) {
+    for (size_t i = 0; i < 10000; i++)
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
+        Logger::i()->console(s + "\tConsole log");
     }
-};
+
+}
 
 int main() {
-    auto logger = Logger::i();
-    logger->LogFileInitialize("log.log");
-    logger->console("Hello, Logger!");
-    logger->con_error("This is error console log.");
-    logger->write_file("This is a one log sting in file.");
-    logger->write_file("This is a two log sting in file.");
+    Logger::i()->LogFileInitialize("log.log");
 
-    SampleClass sample;
-    sample.sample_function();
+    std::shared_ptr<AbstractLogger> l = Logger::i();
+
+    std::string c = "Console::log";
+
+    std::thread t1(fun, "🔴");
+    std::thread t2(fun, "🟡");
+    std::thread t3(fun, "🔘");
+    std::thread t4(fun, "🟦");
+    std::thread t5(fun, "🍆");
+    std::thread t6(fun, "⚠️");
+    t6.join();
+    t5.join();
+    t4.join();
+    t1.join();
+    t2.join();
+    t3.join();
 
     return 0;
 }

@@ -4,56 +4,74 @@ AbstractLogger::~AbstractLogger() {}
 
 void AbstractLogger::LogFileInitialize(const std::string& file_path, mode_t perms)
 {
-    auto _log_file = std::make_unique<File>(file_path, perms);
-    log_file = std::move(_log_file);
-    log_file_init = log_file != nullptr;
-    if (!log_file)
-        con_error("Error LogFileInitialize():\n" + log_file->error_message());
+    try
+    {
+        auto _log_file = std::make_unique<File>(file_path, File::open_mode::w, perms);
+        log_file = std::move(_log_file);
+        log_file_init = log_file != nullptr;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Log file initialization failed. Reason: " << e.what() << '\n';
+        throw;
+    }
 }
 
+#ifdef threadsafe
 void AbstractLogger::console(const std::string& str, bool add_threadid)
 {
+
     std::lock_guard<std::mutex> lock(mutex);
     std::string threadIdStr;
     if (add_threadid)
     {
-        std::ostringstream oss;
-        oss << std::this_thread::get_id();
-        threadIdStr = "[THREAD " + oss.str() + "]: ";
+        threadIdStr = "[THREAD " + getThreadID() + "]: ";
     }
     std::cout << threadIdStr << str << std::endl;
 }
 
-void AbstractLogger::con_error(const std::string& str, bool add_threadid)
+void AbstractLogger::conError(const std::string& str, bool add_threadid)
 {
+
     std::lock_guard<std::mutex> lock(mutex);
     std::string threadIdStr;
     if (add_threadid)
     {
-        std::ostringstream oss;
-        oss << std::this_thread::get_id();
-        threadIdStr = "[THREAD " + oss.str() + "]: ";
+        threadIdStr = "[THREAD " + getThreadID() + "]: ";
     }
     std::cerr << threadIdStr << str << std::endl;
 }
 
-void AbstractLogger::write_file(const std::string& data, bool add_threadid)
+void AbstractLogger::writeFile(const std::string& data, bool add_threadid)
 {
+
     std::lock_guard<std::mutex> lock(mutex);
     std::string str = "[" + currentTime() + "] ";
     if (add_threadid)
     {
-        std::ostringstream oss;
-        oss << std::this_thread::get_id();
-        str += "[THREAD " + oss.str() + "]: ";
+        str += "[THREAD " + getThreadID() + "]: ";
     }
-    log_file->append_lock(str + data + "\n");
+    log_file->appendNewLock(str + data);
+}
+#endif
+
+#ifndef threadsafe
+void AbstractLogger::console(const std::string& str)
+{
+    std::cout << str << std::endl;
 }
 
-bool AbstractLogger::file_initialized()
+void AbstractLogger::conError(const std::string& str)
 {
-    return log_file_init;
+    std::cerr << str << std::endl;
 }
+
+void AbstractLogger::writeFile(const std::string& data)
+{
+    std::string str = "[" + currentTime() + "] ";
+    log_file->appendNewLock(str + data);
+}
+#endif
 
 std::string AbstractLogger::currentTime()
 {
@@ -64,4 +82,12 @@ std::string AbstractLogger::currentTime()
     std::stringstream ss;
     ss << std::put_time(local_time, "%D %X");
     return ss.str();
+}
+
+std::string AbstractLogger::getThreadID()
+{
+    std::ostringstream oss;
+    oss << std::this_thread::get_id();
+    std::string str = oss.str();
+    return str;
 }
