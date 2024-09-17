@@ -1,3 +1,6 @@
 [submodule "FileActionsCPP"]
 	path = FileActionsCPP
 	url = https://gitverse.ru/MaksMN/FileActionsCPP
+[submodule "FileActionsCPP-GH"]
+	path = FileActionsCPP-GH
+	url = https://github.com/MaksMN/FileActionsCPP
